@@ -104,6 +104,8 @@
         .weather-module { display: flex; justify-content: space-between; align-items: center; cursor: pointer; }
         .weather-info h3 { font-size: 2.2rem; font-weight: 700; }
         .weather-info p { color: var(--text-muted); font-size: 0.85rem; margin-top: 4px; }
+        .weather-desc-text { font-size: 0.85rem; margin-top: 6px; color: var(--accent); font-weight: 600; }
+        .weather-details { display: flex; gap: 12px; font-size: 0.75rem; margin-top: 6px; color: var(--text-muted); font-weight: 500;}
         .weather-icon { font-size: 2.8rem; }
 
         /* --- Módulo: Pomodoro --- */
@@ -338,7 +340,7 @@
             <div class="card greeting">
                 <h2>Olá! Que bom ter você por aqui!</h2>
                 <div class="time" id="main-clock" onclick="openTimezoneModal()">00:00:00</div>
-                <p>Tenha um dia produtivo!</p>
+                <p>Tenha um dia produtivo.</p>
                 <div id="extra-clocks" style="margin-top:10px; display:flex; gap:10px; font-size:0.8rem; color:var(--text-muted);"></div>
             </div>
 
@@ -346,6 +348,11 @@
                 <div class="weather-info">
                     <h3 id="temp">--°C</h3>
                     <p id="city-name">A carregar local...</p>
+                    <div id="weather-desc" class="weather-desc-text">Carregando...</div>
+                    <div class="weather-details">
+                        <span id="weather-wind" title="Velocidade do vento"><i class="fas fa-wind"></i> -- km/h</span>
+                        <span id="weather-precip" title="Precipitação"><i class="fas fa-tint"></i> -- mm</span>
+                    </div>
                 </div>
                 <div class="weather-icon" id="weather-emoji">☁️</div>
             </div>
@@ -486,10 +493,35 @@
 
             <hr style="border: none; border-top: 1px solid var(--card-border); margin: 15px 0;">
             
-            <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Adicionar Novo</h4>
-            <div style="display:flex; gap:10px; margin-bottom: 10px;">
-                <input type="time" id="event-time" class="search-input" style="width: 120px; margin-bottom:0;">
-                <input type="text" id="event-title" class="search-input" style="flex:1; margin-bottom:0;" placeholder="Título do compromisso">
+            <h4 style="margin-bottom: 10px; font-size: 0.95rem;">Adicionar / Editar</h4>
+            <div style="display:flex; flex-direction:column; gap:10px; margin-bottom: 15px;">
+                <input type="text" id="event-title" class="search-input" style="margin-bottom:0;" placeholder="Título do compromisso">
+                <div style="display:flex; gap:10px; align-items:center;">
+                    <input type="time" id="event-time" class="search-input" style="width: 120px; margin-bottom:0;">
+                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; font-size:0.9rem;">
+                        <input type="checkbox" id="event-allday" onchange="toggleAllDay()"> Dia todo
+                    </label>
+                </div>
+                <div style="margin-top: 5px;">
+                    <h5 style="font-size: 0.85rem; margin-bottom: 8px;">Notificar-me:</h5>
+                    <div style="display:flex; flex-wrap: wrap; gap: 10px; font-size: 0.8rem;">
+                        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" class="event-notif-cb" value="0" checked> Na hora
+                        </label>
+                        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" class="event-notif-cb" value="30"> 30 min antes
+                        </label>
+                        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" class="event-notif-cb" value="60"> 1 hora antes
+                        </label>
+                        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" class="event-notif-cb" value="1440"> 1 dia antes
+                        </label>
+                        <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                            <input type="checkbox" class="event-notif-cb" value="10080"> 1 sem. antes
+                        </label>
+                    </div>
+                </div>
             </div>
             <button class="action-btn" id="event-save-btn" onclick="saveEvent()">Salvar Compromisso</button>
         </div>
@@ -531,8 +563,8 @@
                         { name: 'Keep', url: 'https://keep.google.com', icon: 'https://commons.wikimedia.org/wiki/Special:FilePath/Google_Keep_2020_Logo.svg' },
                         { name: 'Drive', url: 'https://drive.google.com', icon: 'https://commons.wikimedia.org/wiki/Special:FilePath/Google_Drive_icon_(2020).svg' },
                         { name: 'Gmail', url: 'https://mail.google.com', icon: 'https://commons.wikimedia.org/wiki/Special:FilePath/Gmail_icon_(2020).svg' },
-                        { name: 'Tradutor', url: 'https://translate.google.com', icon: getFavicon('translate.google.com') },
-                        { name: 'Youtube', url: 'https://youtube.com', icon: getFavicon('youtube.com') }
+                        { name: 'Youtube', url: 'https://youtube.com', icon: getFavicon('youtube.com') },
+                        { name: 'Tradutor', url: 'https://translate.google.com', icon: getFavicon('translate.google.com') }
                     ]
                 },
                 {
@@ -553,14 +585,14 @@
                 { name: 'ChatGPT', url: 'https://chat.openai.com', icon: getFavicon('chatgpt.com') },
                 { name: 'LeadLovers', url: 'https://leadlovers.com', icon: getFavicon('leadlovers.com') },
                 { name: 'Mailchimp', url: 'https://mailchimp.com', icon: getFavicon('mailchimp.com') },
-                { name: 'GPT Maker', url: 'https://gptmaker.ai', icon: getFavicon('gptmaker.ai') },
-                { name: 'Opus', url: 'https://clip.opus.pro', icon: getFavicon('clip.opus.pro') },
+                { name: 'GPT Maker', url: 'https://gptmaker.ai/', icon: getFavicon('gptmaker.ai') },
+                { name: 'Opus', url: 'https://clip.opus.pro/', icon: getFavicon('clip.opus.pro') },
                 { name: 'Missão', url: 'http://missaocrista.org.br/', icon: getFavicon('missaocrista.org.br') },
                 { name: 'GGA', url: 'http://gga.global/', icon: getFavicon('gga.global') },
-                { name: 'Missão ADM', url: 'http://missaocrista.org.br/wp-admin', icon: getFavicon('wordpress.com') },
-                { name: 'GGA ADMIN', url: 'http://gga.global/wp-admin', icon: getFavicon('wordpress.com') },
-                { name: 'Canva', url: 'https://www.canva.com/pt_br', icon: getFavicon('canva.com') },
-                { name: 'CapCut', url: 'https://www.capcut.com/pt-br', icon: getFavicon('capcut.com') }
+                { name: 'Missão ADM', url: 'https://www.missaocrista.org.br/wp-admin', icon: getFavicon('wordpress.com') },
+                { name: 'GGA ADM', url: 'https://www.gga.global/wp-admin', icon: getFavicon('wordpress.com') },
+                { name: 'Canva', url: 'https://www.canva.com', icon: getFavicon('canva.com') },
+                { name: 'CapCut', url: 'https://www.capcut.com', icon: getFavicon('capcut.com') }
             ]
         };
 
@@ -597,19 +629,70 @@
         async function fetchWeather(lat, lon, cityName) {
             try {
                 document.getElementById('city-name').innerText = cityName;
-                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+                // Atualizado para buscar current de forma mais detalhada incluindo is_day, vento e precipitação
+                const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current=temperature_2m,is_day,precipitation,weather_code,wind_speed_10m`);
                 const data = await res.json();
-                const temp = Math.round(data.current_weather.temperature);
-                const code = data.current_weather.weathercode;
+                
+                const temp = Math.round(data.current.temperature_2m);
+                const code = data.current.weather_code;
+                const isDay = data.current.is_day === 1;
+                const wind = data.current.wind_speed_10m;
+                const precip = data.current.precipitation;
+                
                 document.getElementById('temp').innerText = `${temp}°C`;
+                document.getElementById('weather-wind').innerHTML = `<i class="fas fa-wind"></i> ${wind} km/h`;
+                document.getElementById('weather-precip').innerHTML = `<i class="fas fa-tint"></i> ${precip} mm`;
                 
                 let emoji = '☀️';
-                if(code >= 1 && code <= 3) emoji = '⛅';
-                if(code >= 45 && code <= 48) emoji = '🌫️';
-                if(code >= 51 && code <= 67) emoji = '🌧️';
-                if(code >= 71 && code <= 77) emoji = '❄️';
-                if(code >= 95) emoji = '⛈️';
+                let desc = 'Limpo';
+
+                // Tabela de Códigos Meteorológicos (WMO) com traduções precisas e distinção de Dia/Noite
+                if (code === 0) {
+                    desc = "Céu limpo";
+                    emoji = isDay ? '☀️' : '🌙';
+                } else if (code === 1) {
+                    desc = "Predominantemente limpo";
+                    emoji = isDay ? '🌤️' : '☁️'; 
+                } else if (code === 2) {
+                    desc = "Parcialmente nublado";
+                    emoji = isDay ? '⛅' : '☁️';
+                } else if (code === 3) {
+                    desc = "Nublado";
+                    emoji = '☁️';
+                } else if (code === 45 || code === 48) {
+                    desc = "Névoa";
+                    emoji = '🌫️';
+                } else if (code >= 51 && code <= 55) {
+                    desc = "Chuvisco";
+                    emoji = isDay ? '🌦️' : '🌧️';
+                } else if (code >= 56 && code <= 57) {
+                    desc = "Chuvisco gelado";
+                    emoji = '🌧️';
+                } else if (code >= 61 && code <= 65) {
+                    desc = "Chuva";
+                    emoji = '🌧️';
+                } else if (code >= 66 && code <= 67) {
+                    desc = "Chuva congelante";
+                    emoji = '🌧️';
+                } else if (code >= 71 && code <= 77) {
+                    desc = "Neve";
+                    emoji = '❄️';
+                } else if (code >= 80 && code <= 82) {
+                    desc = "Pancadas de chuva";
+                    emoji = isDay ? '🌦️' : '🌧️';
+                } else if (code >= 85 && code <= 86) {
+                    desc = "Pancadas de neve";
+                    emoji = '🌨️';
+                } else if (code >= 95) {
+                    desc = "Tempestade";
+                    emoji = '⛈️';
+                } else {
+                    desc = "Indefinido";
+                    emoji = isDay ? '☀️' : '🌙';
+                }
+
                 document.getElementById('weather-emoji').innerText = emoji;
+                document.getElementById('weather-desc').innerText = desc;
 
                 // Salvar local escolhido
                 localStorage.setItem('hubWeather', JSON.stringify({lat, lon, cityName}));
@@ -618,7 +701,7 @@
 
         async function detectMyWeatherLocation() {
             closeModal('search-modal');
-            document.getElementById('city-name').innerText = "A detectar...";
+            document.getElementById('city-name').innerText = "A detetar...";
             document.getElementById('temp').innerText = "--°C";
             localStorage.removeItem('hubWeather');
 
@@ -689,6 +772,12 @@
                 document.getElementById('event-save-btn').innerText = 'Salvar Compromisso';
                 document.getElementById('event-time').value = '';
                 document.getElementById('event-title').value = '';
+                document.getElementById('event-allday').checked = false;
+                toggleAllDay();
+                
+                // Reseta os checkboxes de notificação para o padrão ("Na hora" marcado)
+                const cbs = document.querySelectorAll('.event-notif-cb');
+                cbs.forEach(cb => cb.checked = (cb.value === "0"));
             }
         }
 
@@ -972,30 +1061,66 @@
             if (Notification.permission !== "granted") return;
             
             const now = new Date();
-            // Formata YYYY-MM-DD
-            const dateStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
-            // Formata HH:MM
-            const timeStr = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            const nowStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')} ${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
             
-            if (scheduledEvents[dateStr]) {
+            Object.keys(scheduledEvents).forEach(dateStr => {
                 scheduledEvents[dateStr].forEach(ev => {
-                    if (ev.time === timeStr) {
-                        const notifId = `${dateStr}-${ev.id}`;
-                        // Se ainda não notificou sobre este evento específico hoje
-                        if (!notifiedEvents.includes(notifId)) {
-                            new Notification("Lembrete de Compromisso", {
-                                body: `${ev.time} - ${ev.title}`,
-                                icon: 'https://cdn-icons-png.flaticon.com/512/833/833602.png' // Ícone genérico de calendário
-                            });
-                            notifiedEvents.push(notifId);
-                            // Mantém o tamanho do array gerido para não inchar a localstorage (últimos 100)
-                            if (notifiedEvents.length > 100) notifiedEvents.shift(); 
-                            localStorage.setItem('hubNotifiedEvents', JSON.stringify(notifiedEvents));
+                    // Trata eventos salvos em versões antigas sem os novos atributos
+                    const evOffsets = ev.notifOffsets || [0];
+                    const isAllDay = ev.allDay || false;
+                    
+                    const [y, m, d] = dateStr.split('-');
+                    const evTime = isAllDay ? '09:00' : ev.time;
+                    const [h, min] = evTime.split(':');
+                    const eventDateTime = new Date(y, m - 1, d, h, min);
+
+                    evOffsets.forEach(offset => {
+                        const notifTime = new Date(eventDateTime.getTime() - offset * 60000); // subtrai minutos
+                        const nY = notifTime.getFullYear();
+                        const nM = String(notifTime.getMonth() + 1).padStart(2, '0');
+                        const nD = String(notifTime.getDate()).padStart(2, '0');
+                        const nH = String(notifTime.getHours()).padStart(2, '0');
+                        const nMin = String(notifTime.getMinutes()).padStart(2, '0');
+                        
+                        const notifStr = `${nY}-${nM}-${nD} ${nH}:${nMin}`;
+                        
+                        if (nowStr === notifStr) {
+                            const notifId = `${dateStr}-${ev.id}-${offset}`;
+                            if (!notifiedEvents.includes(notifId)) {
+                                let offsetText = "agora";
+                                if (offset === 30) offsetText = "em 30 minutos";
+                                else if (offset === 60) offsetText = "em 1 hora";
+                                else if (offset === 1440) offsetText = "amanhã";
+                                else if (offset === 10080) offsetText = "na próxima semana";
+                                
+                                const timeLabel = isAllDay ? 'Dia todo' : ev.time;
+
+                                new Notification("Lembrete: " + ev.title, {
+                                    body: `O evento (${timeLabel}) acontecerá ${offsetText}.`,
+                                    icon: 'https://cdn-icons-png.flaticon.com/512/833/833602.png'
+                                });
+                                
+                                notifiedEvents.push(notifId);
+                                if (notifiedEvents.length > 200) notifiedEvents.shift(); 
+                                localStorage.setItem('hubNotifiedEvents', JSON.stringify(notifiedEvents));
+                            }
                         }
-                    }
+                    });
                 });
-            }
+            });
         }, 60000); // 60.000 ms = 1 minuto
+
+        function toggleAllDay() {
+            const isAllDay = document.getElementById('event-allday').checked;
+            const timeInput = document.getElementById('event-time');
+            if (isAllDay) {
+                timeInput.disabled = true;
+                timeInput.style.opacity = '0.5';
+            } else {
+                timeInput.disabled = false;
+                timeInput.style.opacity = '1';
+            }
+        }
 
         function renderCalendar() {
             const daysContainer = document.getElementById('calendar-days'); 
@@ -1045,15 +1170,20 @@
             listDiv.innerHTML = '';
             
             if (scheduledEvents[selectedDateForEvent] && scheduledEvents[selectedDateForEvent].length > 0) {
-                // Ordenar por horário
-                const events = scheduledEvents[selectedDateForEvent].sort((a, b) => a.time.localeCompare(b.time));
+                const events = scheduledEvents[selectedDateForEvent].sort((a, b) => {
+                    // Coloca "dia todo" no topo
+                    if (a.allDay && !b.allDay) return -1;
+                    if (!a.allDay && b.allDay) return 1;
+                    return (a.time || "").localeCompare(b.time || "");
+                });
                 
                 events.forEach(ev => {
+                    const timeLabel = ev.allDay ? 'Dia todo' : ev.time;
                     const item = document.createElement('div');
                     item.className = 'event-item';
                     item.innerHTML = `
                         <div class="event-item-info">
-                            <span class="event-item-time">${ev.time}</span>
+                            <span class="event-item-time">${timeLabel}</span>
                             <span class="event-item-title">${ev.title}</span>
                         </div>
                         <div class="event-actions">
@@ -1069,13 +1199,20 @@
         }
 
         function saveEvent() {
+            const isAllDay = document.getElementById('event-allday').checked;
             const timeVal = document.getElementById('event-time').value;
             const titleVal = document.getElementById('event-title').value.trim();
             
-            if (!timeVal || !titleVal) {
-                alert("Por favor, preencha a hora e o título do compromisso.");
+            if (!titleVal) {
+                alert("Por favor, preencha o título do compromisso.");
                 return;
             }
+            if (!isAllDay && !timeVal) {
+                alert("Por favor, preencha a hora ou marque 'Dia todo'.");
+                return;
+            }
+
+            const notifOffsets = Array.from(document.querySelectorAll('.event-notif-cb:checked')).map(cb => parseInt(cb.value));
 
             // Pede permissão caso ainda não tenha dado
             requestNotificationPermission();
@@ -1088,8 +1225,10 @@
                 // Editar existente
                 const index = scheduledEvents[selectedDateForEvent].findIndex(e => e.id === editingEventId);
                 if (index !== -1) {
-                    scheduledEvents[selectedDateForEvent][index].time = timeVal;
+                    scheduledEvents[selectedDateForEvent][index].time = isAllDay ? '' : timeVal;
                     scheduledEvents[selectedDateForEvent][index].title = titleVal;
+                    scheduledEvents[selectedDateForEvent][index].allDay = isAllDay;
+                    scheduledEvents[selectedDateForEvent][index].notifOffsets = notifOffsets;
                 }
                 editingEventId = null;
                 document.getElementById('event-save-btn').innerText = 'Salvar Compromisso';
@@ -1097,8 +1236,10 @@
                 // Criar novo
                 scheduledEvents[selectedDateForEvent].push({
                     id: Date.now(),
-                    time: timeVal,
-                    title: titleVal
+                    time: isAllDay ? '' : timeVal,
+                    title: titleVal,
+                    allDay: isAllDay,
+                    notifOffsets: notifOffsets
                 });
             }
 
@@ -1106,6 +1247,11 @@
             
             document.getElementById('event-time').value = '';
             document.getElementById('event-title').value = '';
+            document.getElementById('event-allday').checked = false;
+            toggleAllDay();
+            
+            const cbs = document.querySelectorAll('.event-notif-cb');
+            cbs.forEach(cb => cb.checked = (cb.value === "0"));
             
             renderDayEventsList();
             renderCalendar(); // Atualiza a visualização da grade (ponto cinza)
@@ -1114,8 +1260,16 @@
         function prepareEditEvent(id) {
             const ev = scheduledEvents[selectedDateForEvent].find(e => e.id === id);
             if (ev) {
-                document.getElementById('event-time').value = ev.time;
+                document.getElementById('event-allday').checked = ev.allDay || false;
+                toggleAllDay();
+                document.getElementById('event-time').value = ev.time || '';
                 document.getElementById('event-title').value = ev.title;
+                
+                const evOffsets = ev.notifOffsets || [0];
+                document.querySelectorAll('.event-notif-cb').forEach(cb => {
+                    cb.checked = evOffsets.includes(parseInt(cb.value));
+                });
+
                 editingEventId = id;
                 document.getElementById('event-save-btn').innerText = 'Atualizar Compromisso';
             }
